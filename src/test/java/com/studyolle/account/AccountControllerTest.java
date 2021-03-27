@@ -1,11 +1,11 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
@@ -13,13 +13,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -114,4 +116,25 @@ class AccountControllerTest {
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
     }
 
+    @DisplayName("프로필뷰 테스트 예외")
+    @Test
+    void profile_with_non_nickName() throws Exception {
+        String nickname = "testuser";
+//        mockMvc.perform(get("/profile/{nickname}", nickname))
+//                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NestedServletException));
+//        Assertions.assertThatThrownBy(() -> mockMvc.perform(get("/profile/{nickname}", nickname))).hasCause(new IllegalArgumentException("testuser사용자가 존재하지 않습니다."));
+        assertThatThrownBy(() -> mockMvc.perform(get("/profile/{nickname}", nickname))).hasCause(new IllegalArgumentException());
+    }
+
+
+    @DisplayName("프로필뷰 테스트 예외")
+    @Test
+    void profile_with_non_nickName2() throws Exception {
+        String nickname = "testuser";
+
+//        mockMvc.perform(get("/profile/{nickname}", nickname))
+//                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException));
+
+        assertThrows(IllegalArgumentException.class, () ->mockMvc.perform(get("/profile/{nickname}", nickname)));
+    }
 }

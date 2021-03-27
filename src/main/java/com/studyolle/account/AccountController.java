@@ -10,10 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
 import javax.validation.Valid;
@@ -63,8 +60,7 @@ public class AccountController {
             return view;
         }
 
-        account.completeSignUp();
-        accountService.login(account);
+        accountService.completeSignUp(account);
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", account.getNickname());
         return view;
@@ -86,6 +82,20 @@ public class AccountController {
 
         accountService.sendSignUpConfirmEmail(account);
         return "redirect:/";
+    }
+
+    @GetMapping("/profile/{nickname}")
+    public String profile(@PathVariable String nickname, Model model, @CurrentUser Account account)
+    {
+        Account byNickname = accountRepository.findByNickname(nickname);
+        if (byNickname == null)
+        {
+            throw new IllegalArgumentException(nickname + "사용자가 존재하지 않습니다.");
+        }
+
+        model.addAttribute(byNickname);
+        model.addAttribute("isOwner",  byNickname.equals(account));
+        return "account/profile";
     }
 
 }
